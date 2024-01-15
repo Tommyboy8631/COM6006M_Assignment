@@ -73,7 +73,7 @@ void loop() {
   int B = 3975;
 
   float R = (float) (1023-tempSensorValue)*10000/tempSensorValue;
-  float temperature = 1/(log(R/10000)/B+1/298.15)-276.15;
+  float temperature = 1/(log(R/10000)/B+1/298.15)-276.13;
 
   Serial.println("Temp: ");
   Serial.println(temperature);
