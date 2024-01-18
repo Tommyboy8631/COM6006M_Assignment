@@ -24,11 +24,11 @@ const char lightSensorTopic[] = "homeassistant/lightSensor";
 const char tempSensorTopic[] = "homeassistant/TempSensor";
 const char lightOnTopic[] = "homeassistant/lightOn";
 
-void setup() {
-  char ssid[] = "House_TinterWeb";   
-  char pass[] = "TomIsACunt";    
-  int status = WL_IDLE_STATUS;     
-  Serial.begin(9600);
+const char ssid[] = "House_TinterWeb";   
+const char pass[] = "TomIsACunt";
+int status = WL_IDLE_STATUS; 
+
+void networkConnect(){
   Serial.println("Attempting to connect to WPA network...");
   status = WiFi.begin(ssid, pass);
   if (status != WL_CONNECTED) {
@@ -40,7 +40,9 @@ void setup() {
     Serial.print("with the IP address: ");
     Serial.println(WiFi.localIP());
   }
+}
 
+void mqttConnect(){
   Serial.println("Attempting to connect to your MQTT broker : ");
   Serial.println(mqttBroker);
 
@@ -50,6 +52,13 @@ void setup() {
   }
 
   Serial.println("Your connected to the Mqtt broker!");
+
+}
+
+void setup() {     
+  Serial.begin(9600);
+  networkConnect();
+  mqttConnect();
 }
 
 
@@ -80,7 +89,15 @@ void loop() {
   mqttClient.beginMessage(tempSensorTopic);
   mqttClient.print(temperature);
   mqttClient.endMessage();
-  
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Couldn't get a wifi connection");
+    networkConnect();
+  }
+  while(!mqttClient.connect(mqttBroker, mqttPort)){
+    Serial.println("Mqtt Connection failed error code = ");
+    Serial.println(mqttClient.connectError());
+  }
 
 
   delay(1000);
